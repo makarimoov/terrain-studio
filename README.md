@@ -2,6 +2,8 @@
 
 **Интерактивный 3D-рельеф и векторные SVG-горизонтали из карты высот (heightmap).**
 
+🔗 **Живое демо:** <https://makarimoov.github.io/terrain-studio/>
+
 Чистый HTML/CSS/JS + [Three.js](https://threejs.org/) — без сборки, без зависимостей npm, без бэкенда. Работает локально из папки и на GitHub Pages.
 
 ## Возможности
