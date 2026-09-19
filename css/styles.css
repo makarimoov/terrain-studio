@@ -232,6 +232,30 @@ select {
 .contour-preview.open { display: block; }
 .contour-preview svg { display: block; width: 100%; height: auto; }
 
+/* ---------- Leaflet-карта ---------- */
+#areaMap {
+  position: relative;
+  z-index: 0;
+  height: 250px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+#areaMap .leaflet-container { background: #101b33; font: inherit; }
+.area-marker-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid rgba(79, 209, 197, 0.35);
+  box-shadow: 0 0 0 2px rgba(11, 18, 32, 0.9), 0 2px 8px rgba(0, 0, 0, 0.55);
+  box-sizing: border-box;
+}
+.area-marker .leaflet-marker-icon {
+  background: none;
+  border: none;
+}
+
 /* ---------- responsive ---------- */
 @media (max-width: 1180px) {
   .layout {

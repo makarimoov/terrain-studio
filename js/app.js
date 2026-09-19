@@ -12,6 +12,7 @@ import {
   fetchElevationGrid,
 } from './heightmap.js';
 import { computeContours, polylinesToSVG } from './contours.js';
+import { createAreaPicker } from './map.js';
 
 /* ---------- палитры ---------- */
 const COLORMAPS = {
@@ -246,6 +247,7 @@ document.querySelectorAll('.tab').forEach((btn) => {
   btn.addEventListener('click', () => {
     state.source = btn.dataset.tab;
     setTab(state.source);
+    if (state.source === 'coords') ensureAreaPicker();
     rebuild();
   });
 });
@@ -360,6 +362,11 @@ stageEl.addEventListener('drop', (e) => {
 });
 
 /* ---------- координаты (SRTM) ---------- */
+let areaPicker = null;
+function ensureAreaPicker() {
+  if (!areaPicker) areaPicker = createAreaPicker({ latEl: $('coordLat'), lonEl: $('coordLon'), spanEl: $('coordSpan') });
+  else areaPicker.invalidate();
+}
 $('btnCoords').addEventListener('click', async () => {
   const lat = parseFloat($('coordLat').value);
   const lon = parseFloat($('coordLon').value);

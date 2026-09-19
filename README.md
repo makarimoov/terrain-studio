@@ -11,7 +11,7 @@
 - 🏔 **Три источника рельефа:**
   - **Процедурный** — детерминированный шум (value noise + fbm), пресеты «Горы / Холмы / Остров / Каньон / Хребты», настраиваемые сид, масштаб, октавы и шероховатость;
   - **Файл** — загрузка PNG/JPEG heightmap (яркость пикселя = высота), в том числе перетаскиванием прямо на 3D-сцену;
-  - **Координаты** — реальный рельеф из бесплатного API [Open-Meteo Elevation](https://open-meteo.com/en/docs/elevation-api) (данные SRTM, ~90 м на точку).
+  - **Координаты** — реальный рельеф из бесплатного API [Open-Meteo Elevation](https://open-meteo.com/en/docs/elevation-api) (данные SRTM, ~90 м на точку) с интерактивной картой на Leaflet: клик или перетаскивание маркера выбирают центр области, рамка показывает охват.
 - 🧊 **3D-визуализация:** Three.js, OrbitControls (вращение/зум/панорама), автоповорот, каркасный режим, 4 палитры высот, усиление высоты.
 - 📈 **SVG-горизонтали:** марширующие квадраты (marching squares) со сглаживанием Чайкина, цвет по палитре, предпросмотр и скачивание.
 - 💾 **Экспорт:** скриншот 3D-сцены (PNG), карта высот (PNG), контуры (SVG).
@@ -47,9 +47,12 @@ terrain-studio/
 │   ├── app.js          # Three.js-сцена, состояние, UI
 │   ├── noise.js        # PRNG (mulberry32), value noise, fbm, пресеты рельефа
 │   ├── heightmap.js    # нормализация, ресемплинг, PNG ↔ карта высот, Open-Meteo Elevation
-│   └── contours.js     # marching squares, склейка ломаных, Чайкин, SVG
+│   ├── contours.js     # marching squares, склейка ломаных, Чайкин, SVG
+│   └── map.js          # Leaflet-карта выбора области (клик, маркер, рамка охвата)
 └── test/smoke.mjs      # смоук-тесты чистых модулей
 ```
+
+![Terrain Studio — интерактивная карта выбора области](docs/screenshot-map.png)
 
 ## Как это работает
 
@@ -59,7 +62,7 @@ terrain-studio/
 
 ## Технологии
 
-Three.js · чистый JavaScript (ES-модули) · CSS Grid · Open-Meteo Elevation (SRTM)
+Three.js · Leaflet · чистый JavaScript (ES-модули) · CSS Grid · Open-Meteo Elevation (SRTM)
 
 ## Лицензия
 
