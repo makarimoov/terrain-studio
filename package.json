@@ -1,0 +1,12 @@
+{
+  "name": "terrain-studio",
+  "version": "1.0.0",
+  "description": "Интерактивный 3D-рельеф и SVG-горизонтали из heightmap. Чистый JS + Three.js, без сборки.",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node test/smoke.mjs"
+  },
+  "keywords": ["heightmap", "threejs", "terrain", "svg", "contours", "gis"],
+  "license": "MIT"
+}

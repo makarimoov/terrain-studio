@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terrain Studio — 3D-рельеф и SVG-горизонтали из heightmap</title>
+<meta name="description" content="Генератор интерактивных 3D-моделей рельефа (Three.js) и векторных SVG-карт с горизонталями. Процедурный рельеф, загрузка heightmap PNG, реальные координаты (SRTM).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B0%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">▦</span>
+    <div>
+      <h1>Terrain Studio</h1>
+      <p>3D-рельеф и SVG-горизонтали из heightmap</p>
+    </div>
+  </div>
+  <a id="repoLink" class="btn btn-ghost btn-small" href="#" target="_blank" rel="noopener" hidden>GitHub ↗</a>
+</header>
+
+<main class="layout">
+
+  <!-- Левая панель: источник -->
+  <aside class="panel">
+    <section class="card">
+      <h2>Источник рельефа</h2>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="proc">Процедурный</button>
+        <button class="tab" data-tab="upload">Файл</button>
+        <button class="tab" data-tab="coords">Координаты</button>
+      </div>
+
+      <div class="tabpage" id="tab-proc">
+        <div class="chips">
+          <button class="chip active" data-preset="mountains">Горы</button>
+          <button class="chip" data-preset="hills">Холмы</button>
+          <button class="chip" data-preset="island">Остров</button>
+          <button class="chip" data-preset="canyon">Каньон</button>
+          <button class="chip" data-preset="ridges">Хребты</button>
+        </div>
+        <label class="row">Сид
+          <span class="row-inputs">
+            <input type="number" id="seed" value="42" min="0" step="1">
+            <button id="randomSeed" class="btn btn-small" type="button">Случайно</button>
+          </span>
+        </label>
+        <label class="row">Масштаб <input type="range" id="rangeScale" min="3" max="48" step="0.5" value="16"><output class="val">16</output></label>
+        <label class="row">Октавы <input type="range" id="rangeOct" min="1" max="8" step="1" value="6"><output class="val">6</output></label>
+        <label class="row">Шероховатость <input type="range" id="rangeGain" min="0.1" max="0.9" step="0.05" value="0.5"><output class="val">0.5</output></label>
+      </div>
+
+      <div class="tabpage" id="tab-upload" hidden>
+        <input type="file" id="fileInput" accept="image/*">
+        <p class="hint">PNG/JPEG в оттенках серого: яркость пикселя = высота. Можно перетащить файл прямо на 3D-сцену.</p>
+      </div>
+
+      <div class="tabpage" id="tab-coords" hidden>
+        <label class="row">Широта <input type="number" id="coordLat" value="51.1605" step="0.0001"></label>
+        <label class="row">Долгота <input type="number" id="coordLon" value="71.4704" step="0.0001"></label>
+        <label class="row">Сетка, точек <input type="number" id="coordPts" value="20" min="8" max="24" step="1"></label>
+        <label class="row">Охват, град. <input type="number" id="coordSpan" value="0.02" min="0.002" max="0.2" step="0.001"></label>
+        <button id="btnCoords" class="btn" type="button">Загрузить рельеф SRTM</button>
+        <p class="hint">Бесплатное API Open-Meteo (данные SRTM, ~90 м на точку). Пример — окрестности Астаны.</p>
+      </div>
+    </section>
+  </aside>
+
+  <!-- Сцена -->
+  <section class="stage" id="stage">
+    <div id="view3d"></div>
+    <div id="dropzone" hidden>Перетащите heightmap сюда</div>
+    <div id="toast" class="toast" hidden></div>
+  </section>
+
+  <!-- Правая панель: вид и экспорт -->
+  <aside class="panel panel-right">
+    <section class="card">
+      <h2>Вид</h2>
+      <label class="row">Палитра
+        <select id="selectMap">
+          <option value="earth" selected>Земля</option>
+          <option value="depth">Глубина</option>
+          <option value="fire">Огонь</option>
+          <option value="mono">Моно</option>
+        </select>
+      </label>
+      <label class="row">Высота <input type="range" id="rangeExc" min="0.1" max="4" step="0.05" value="1.6"><output class="val">1.6</output></label>
+      <label class="check"><input type="checkbox" id="chkWire"> Каркас (wireframe)</label>
+      <label class="check"><input type="checkbox" id="chkRot" checked> Автоповорот</label>
+      <p class="hint" id="sourceInfo"></p>
+    </section>
+
+    <div class="sep"></div>
+
+    <section class="card">
+      <h2>Горизонтали (SVG)</h2>
+      <label class="check"><input type="checkbox" id="chkContour"> Показать карту горизонталей</label>
+      <label class="row">Уровней <input type="range" id="rangeContour" min="3" max="30" step="1" value="12"><output class="val">12</output></label>
+      <div class="contour-preview" id="contourBox"></div>
+      <button id="btnSvg" class="btn" type="button">Скачать contours.svg</button>
+    </section>
+
+    <div class="sep"></div>
+
+    <section class="card">
+      <h2>Экспорт</h2>
+      <button id="btnShot" class="btn" type="button">Скриншот 3D (PNG)</button>
+      <button id="btnPng" class="btn btn-ghost" type="button" style="margin-top:8px">Скачать heightmap (PNG)</button>
+    </section>
+
+    <div class="sep"></div>
+    <p class="hint">Стек: Three.js · чистый JS без сборки. Данные высот: Open-Meteo Elevation (SRTM). Лицензия MIT.</p>
+  </aside>
+
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
